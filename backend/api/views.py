@@ -1,4 +1,4 @@
-from http.client import HTTPResponse
+from django.http import HttpResponse
 import json, math, jwt
 from urllib import request
 from rest_framework.response import Response
@@ -43,8 +43,8 @@ class HelloView(APIView):
         AllowAny,
     ]
     def get(self,request):
-        message="Hello World"
-        return HTTPResponse(message)
+        message="<html><body>Hello World!</body></html>"
+        return HttpResponse(message)
 
 
 def calculate_kc(kc_tab,u2,rh,h):
