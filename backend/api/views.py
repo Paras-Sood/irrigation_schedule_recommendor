@@ -1,3 +1,4 @@
+from http.client import HTTPResponse
 import json, math, jwt
 from urllib import request
 from rest_framework.response import Response
@@ -43,7 +44,7 @@ class HelloView(APIView):
     ]
     def get(self,request):
         message="Hello World"
-        return Response(message)
+        return HTTPResponse(message)
 
 
 def calculate_kc(kc_tab,u2,rh,h):
