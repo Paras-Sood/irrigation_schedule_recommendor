@@ -152,4 +152,4 @@ class SensorData(APIView):
         field_area=int(body['field_area'])
         field_area*=1000
         iwn=irrigation_water_needed(lat,long,crop,crop_age)
-        return Response(f"Received Data!  IWN = {iwn} totalWaterneeded={field_area*iwn}")
+        return Response(field_area*iwn)
