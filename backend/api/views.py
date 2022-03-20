@@ -80,7 +80,11 @@ class SensorData(APIView):
         AllowAny,
     ]
     def post(self,request):
+        # return "Here"
+        print("Before--------------------------------")
+        # print(request.POST['lat'])
         body=json.loads(request.body)
+        # print(body)
         # body=request.data
         # sensordata=SampleSensorData.objects.first()
         lat=body['lat']
@@ -102,7 +106,8 @@ class SensorData(APIView):
         pressure/=10 # Converting millibar to kPa
         gamma=calculate_gamma(pressure)
         es=calculate_es(T_mean)
-        Rh=body['Rh']
+        # Rh=body['Rh']
+        Rh=20
         ea=calculate_ea(Rh,es)
         eto=calculate_eto(delta,Rn,gamma,T_mean,es,ea,u2)
         return Response(f"Received Data!  ETO = {eto}")
