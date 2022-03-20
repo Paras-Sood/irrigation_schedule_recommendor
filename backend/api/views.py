@@ -80,8 +80,8 @@ class SensorData(APIView):
         AllowAny,
     ]
     def post(self,request):
-        # body=json.loads(request.body)
-        body=request.data
+        body=json.loads(request.body)
+        # body=request.data
         sensordata=SampleSensorData.objects.first()
         lat=body['lat']
         long=body['long']
