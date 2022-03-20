@@ -3,7 +3,7 @@ import json, math, jwt, requests
 from urllib import request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from backend.models import User
+from backend.models import User, SampleSensorData
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -77,11 +77,12 @@ def calculate_eto(delta,Rn,gamma,T,es,ea,u2):
 
 class SensorData(APIView):
     permission_classes = [
-        IsAuthenticated,
+        AllowAny,
     ]
     def post(self,request):
         # body=json.loads(request.body)
         body=request.data
+        sensordata=SampleSensorData.objects.first()
         lat=body['lat']
         long=body['long']
         url=f"http://api.weatherapi.com/v1/current.json?key={settings.WEATHER_API_KEY}&q={lat},{long}"
@@ -94,7 +95,7 @@ class SensorData(APIView):
         u=current_data['wind_kph']
         u*=5/18 # converting kph to mps
         u2=calculate_u2(u,10) # converting u10 to u2
-        Rn=body['Rn']
+        Rn=sensordata.short_wave_irradication
         delta=calculate_delta(T_mean,Rn)
         pressure=current_data['pressure_mb']
         pressure/=10 # Converting millibar to kPa
@@ -102,4 +103,5 @@ class SensorData(APIView):
         es=calculate_es(T_mean)
         Rh=body['Rh']
         ea=calculate_ea(Rh,es)
+        eto=calculate_eto(delta,Rn,gamma,T_mean,es,ea,u2)
         return Response(body)
