@@ -46,6 +46,8 @@ class HelloView(APIView):
         AllowAny,
     ]
     def get(self,request):
+        data=SampleSensorData(temperature=10,relative_humidity=50,pressure=99,wind_speed=2.09,short_wave_irradiation=132.18,soil_moisture=32)
+        data.save()
         message="<html><body>Hello World!</body></html>"
         return HttpResponse(message)
 
