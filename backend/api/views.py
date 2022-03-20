@@ -83,14 +83,16 @@ class SensorData(APIView):
         # return "Here"
         print("Before--------------------------------")
         # print(request.POST['lat'])
-        body=json.loads(request.body)
+        # body=json.loads(request.body)
+        body=request.POST
         # print(body)
         # body=request.data
         # sensordata=SampleSensorData.objects.first()
         lat=body['lat']
         long=body['long']
-        url=f"http://api.weatherapi.com/v1/current.json?key={settings.WEATHER_API_KEY}&q={lat},{long}"
-        weather_data=requests.get(url).response
+        url=f"http://api.weatherapi.com/v1/forecast.json?key={settings.WEATHER_API_KEY}&q={lat},{long}"
+        weather_data=requests.get(url)
+        weather_data=json.loads(weather_data.content)
         current_data=weather_data['current']
         day_data=weather_data['forecast']['forecastday'][0]['day']
         mxT=day_data['maxtemp_c']
@@ -101,7 +103,7 @@ class SensorData(APIView):
         u2=calculate_u2(u,10) # converting u10 to u2
         # Rn=sensordata.short_wave_irradication
         Rn=15
-        delta=calculate_delta(T_mean,Rn)
+        delta=calculate_delta(T_mean)
         pressure=current_data['pressure_mb']
         pressure/=10 # Converting millibar to kPa
         gamma=calculate_gamma(pressure)
