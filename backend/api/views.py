@@ -11,6 +11,7 @@ from irrigation_schedule_recommendor import settings
 from rest_framework import status
 from backend.api.serializers import UserSerializer, RegisterSerializer
 
+# Values for Wheat
 KC_TAB=[0,0.3,1.15,0.25]
 HEIGHT=[0.15,0.25,0.5,0.3]
 
@@ -51,6 +52,9 @@ class HelloView(APIView):
         message="<html><body>Hello World!</body></html>"
         return HttpResponse(message)
 
+# u2 - Wind speed at 2m height mps
+# rh - Relative Humidity %
+# h - height of crop m
 
 def calculate_kc(kc_tab,u2,rh,h):
     kc_tab=float(kc_tab)
@@ -59,26 +63,35 @@ def calculate_kc(kc_tab,u2,rh,h):
     h=float(h)
     return (kc_tab+(0.04*(u2-2) - 0.004*(rh-45)*pow(h/3,3)))
 
+# T_mean - (Tmax+Tmin)/2 - Celcius
 def calculate_delta(T_mean):
     denom=T_mean+237.3
     return (2503.0584*math.exp((17.27*T_mean)/denom)/pow(denom,2))
 
+# function to convert wind speed at height h to wind speed at height 2m above ground
 def calculate_u2(u,h):
     num=u*4.87
     denom=math.log(67.8*h - 5.42)
     return num/denom
 
+# P - Pressure - kPa
+# gamma - psychometric constant - kPa/C
 def calculate_gamma(P):
     return 0.000665*P
 
+# T - Temperature - C
+# es - saturation vapor pressure - kPa;
 def calculate_es(T):
     es = 0.6108 * math.exp(17.27 * T / (T + 237.3))
     return es
 
+# RH - Relative Humidity - %
+# ea - actual vapor pressure - kPa;
 def calculate_ea(RH,es):
     ea=float(RH / 100) * es
     return ea
 
+# ETo - reference evapotranspiration, mm/day
 def calculate_eto(delta,Rn,gamma,T,es,ea,u2):
     delta=float(delta)
     Rn=float(Rn)
@@ -91,6 +104,8 @@ def calculate_eto(delta,Rn,gamma,T,es,ea,u2):
     denom=delta+gamma*(1+0.34*u2)
     return num/denom
 
+# Function for calculating effective rainfall
+# P - Precipitation - mm/month
 def calculate_Pe(P):
     return (0.8*P - 25)
 
@@ -149,7 +164,7 @@ class SensorData(APIView):
         long=float(body['long'])
         crop=body['crop']
         crop_age=int(body['crop_age'])
-        field_area=int(body['field_area'])
+        field_area=int(body['field_area']) # m2
         field_area*=1000
-        iwn=irrigation_water_needed(lat,long,crop,crop_age)
+        iwn=irrigation_water_needed(lat,long,crop,crop_age) # mm/month
         return Response(field_area*iwn)
