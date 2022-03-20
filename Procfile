@@ -1,1 +1,1 @@
-web: gunicorn app_name.wsgi --log-file -
+web: gunicorn irrigation_schedule_recommendor.wsgi --log-file -
