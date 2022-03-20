@@ -82,7 +82,7 @@ class SensorData(APIView):
     def post(self,request):
         body=json.loads(request.body)
         # body=request.data
-        sensordata=SampleSensorData.objects.first()
+        # sensordata=SampleSensorData.objects.first()
         lat=body['lat']
         long=body['long']
         url=f"http://api.weatherapi.com/v1/current.json?key={settings.WEATHER_API_KEY}&q={lat},{long}"
@@ -95,7 +95,8 @@ class SensorData(APIView):
         u=current_data['wind_kph']
         u*=5/18 # converting kph to mps
         u2=calculate_u2(u,10) # converting u10 to u2
-        Rn=sensordata.short_wave_irradication
+        # Rn=sensordata.short_wave_irradication
+        Rn=15
         delta=calculate_delta(T_mean,Rn)
         pressure=current_data['pressure_mb']
         pressure/=10 # Converting millibar to kPa
@@ -104,4 +105,4 @@ class SensorData(APIView):
         Rh=body['Rh']
         ea=calculate_ea(Rh,es)
         eto=calculate_eto(delta,Rn,gamma,T_mean,es,ea,u2)
-        return Response(body)
+        return Response(f"Received Data!  ETO = {eto}")
