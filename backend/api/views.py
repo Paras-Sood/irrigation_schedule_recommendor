@@ -143,11 +143,11 @@ class SensorData(APIView):
     ]
     def post(self,request):
         body=request.POST
-        lat=int(body['lat'])
-        long=int(body['long'])
+        lat=float(body['lat'])
+        long=float(body['long'])
         crop=body['crop']
         crop_age=int(body['crop_age'])
         field_area=int(body['field_area'])
         field_area*=1000
         iwn=irrigation_water_needed(lat,long,crop,crop_age)
-        return Response(f"Received Data!  IWN = {iwn} totalWaterneeded={int(field_area*iwn)}")
+        return Response(f"Received Data!  IWN = {iwn} totalWaterneeded={field_area*iwn}")
