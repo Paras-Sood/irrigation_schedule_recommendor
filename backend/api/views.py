@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-import json, math, jwt
+import json, math, jwt, requests
 from urllib import request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -82,4 +82,24 @@ class SensorData(APIView):
     def post(self,request):
         # body=json.loads(request.body)
         body=request.data
+        lat=body['lat']
+        long=body['long']
+        url=f"http://api.weatherapi.com/v1/current.json?key={settings.WEATHER_API_KEY}&q={lat},{long}"
+        weather_data=requests.get(url).response
+        current_data=weather_data['current']
+        day_data=weather_data['forecast']['forecastday'][0]['day']
+        mxT=day_data['maxtemp_c']
+        mnT=day_data['mintemp_c']
+        T_mean=(mxT-mnT)/2
+        u=current_data['wind_kph']
+        u*=5/18 # converting kph to mps
+        u2=calculate_u2(u,10) # converting u10 to u2
+        Rn=body['Rn']
+        delta=calculate_delta(T_mean,Rn)
+        pressure=current_data['pressure_mb']
+        pressure/=10 # Converting millibar to kPa
+        gamma=calculate_gamma(pressure)
+        es=calculate_es(T_mean)
+        Rh=body['Rh']
+        ea=calculate_ea(Rh,es)
         return Response(body)
